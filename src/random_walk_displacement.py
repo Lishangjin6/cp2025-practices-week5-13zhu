@@ -1,54 +1,75 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def random_walk_displacement(num_steps, num_simulations):
     """
     模拟随机行走并返回每次模拟的最终位移
 
     参数:
-    num_steps (int): 随机行走的步数
-    num_simulations (int): 模拟的次数
+    num_steps (int): 随机行走的步数，必须大于0
+    num_simulations (int): 模拟的次数，必须大于0
 
     返回:
-    numpy.ndarray: 形状为(2, num_simulations)的数组，表示每次模拟的最终位移
+    np.ndarray: 形状为(2, num_simulations)的数组，包含每次模拟在x和y方向的最终位移
     """
-    # TODO: 检查输入参数的有效性
-    
-    # TODO: 实现随机行走算法
-    # 提示：
-    # 1. 使用 np.random.choice 生成随机步长 ([-1, 1])
-    # 2. 生成形状为 (2, num_simulations, num_steps) 的数组
-    # 3. 对步数维度求和得到最终位移
-    
-    pass
+    if num_steps <= 0:
+        raise ValueError("num_steps must be greater than 0")
+    if num_simulations <= 0:
+        raise ValueError("num_simulations must be greater than 0")
 
-def plot_displacement_distribution(final_displacements, bins=30):
-    """
-    绘制位移分布直方图
+    # 生成随机方向数组，形状为(2, num_simulations, num_steps)
+    directions = np.random.choice([-1, 1], size=(2, num_simulations, num_steps))
+    # 对步数维度求和，得到每次模拟的最终位移
+    final_displacements = directions.sum(axis=2)
 
-    参数:
-    final_displacements (list): 包含每次模拟最终位移的列表
-    bins (int): 直方图的组数
-    """
-    # TODO: 实现位移分布的直方图绘制
-    # 1. 计算每次模拟的最终位移
-    # 2. 使用plt.hist绘制直方图
-    # 3. 添加标题和标签
-    pass
+    return final_displacements
 
-def plot_displacement_square_distribution(final_displacements, bins=30):
+
+def calculate_displacements(final_displacements):
     """
-    绘制位移平方分布直方图
+    计算每次模拟的总位移
 
     参数:
-    final_displacements (list): 包含每次模拟最终位移的列表
+    final_displacements (np.ndarray): 形状为(2, num_simulations)的数组，包含每次模拟在x和y方向的最终位移
+
+    返回:
+    np.ndarray: 包含每次模拟总位移的数组
+    """
+    return np.sqrt(final_displacements[0] ** 2 + final_displacements[1] ** 2)
+
+
+def calculate_displacements_square(final_displacements):
+    """
+    计算每次模拟的总位移的平方
+
+    参数:
+    final_displacements (np.ndarray): 形状为(2, num_simulations)的数组，包含每次模拟在x和y方向的最终位移
+
+    返回:
+    np.ndarray: 包含每次模拟总位移平方的数组
+    """
+    return final_displacements[0] ** 2 + final_displacements[1] ** 2
+
+
+def plot_distribution(data, title, xlabel, ylabel, bins=30):
+    """
+    绘制分布直方图
+
+    参数:
+    data (np.ndarray): 要绘制直方图的数据
+    title (str): 直方图的标题
+    xlabel (str): x轴标签
+    ylabel (str): y轴标签
     bins (int): 直方图的组数
     """
-    # TODO: 实现位移平方分布的直方图绘制
-    # 1. 计算位移平方
-    # 2. 使用plt.hist绘制直方图
-    # 3. 添加标题和标签
-    pass
+    plt.hist(data, bins=bins, density=True, alpha=0.7, color='b')
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.grid(True)
+    plt.show()
+
 
 if __name__ == "__main__":
     # 可调整的参数
@@ -56,7 +77,20 @@ if __name__ == "__main__":
     num_simulations = 1000  # 模拟的次数
     bins = 30  # 直方图的组数
 
-    # TODO: 完成主程序逻辑
-    # 1. 调用random_walk_displacement获取模拟结果
-    # 2. 绘制位移分布直方图
-    # 3. 绘制位移平方分布直方图
+    try:
+        # 模拟随机行走
+        displacements = random_walk_displacement(num_steps, num_simulations)
+
+        # 计算总位移
+        total_displacements = calculate_displacements(displacements)
+        # 绘制位移分布直方图
+        plot_distribution(total_displacements, 'Random Walk Displacement Distribution',
+                          'Final Displacement', 'Probability Density', bins)
+
+        # 计算总位移的平方
+        total_displacements_square = calculate_displacements_square(displacements)
+        # 绘制位移平方分布直方图
+        plot_distribution(total_displacements_square, 'Random Walk Displacement Square Distribution',
+                          'Final Displacement Square', 'Probability Density', bins)
+    except ValueError as e:
+        print(e)
